@@ -1,0 +1,199 @@
+#!/bin/sh
+FILES=0
+DIRECTORIES=0
+FSIZE=0
+SIZE_B=0
+SIZE_K=0
+SIZE_XK=0
+SIZE_XXK=0
+SIZE_M=0
+SIZE_XM=0
+SIZE_XXM=0
+SIZE_LG=0
+SIZE_G=0
+POSIXLY_CORRECT=yes
+DIR=$(pwd)
+I_ARG=""
+CHECK=0
+N_ARG=false
+
+custom_find()
+{
+	for i in "$1"/*; do
+		if [ -n "$I_ARG" ]; then
+			local filterout=$(echo "$i" | egrep "$I_ARG")
+			if [ -z "$filterout" ]; then
+				if [ -d "$i" ]; then
+					DIRECTORIES=$((DIRECTORIES+1))
+					custom_find "$i"
+				elif [ -f "$i" ]; then
+					FILES=$((FILES+1))
+					size_category "$i"
+				fi
+			fi
+		elif [ -d "$i" ]; then
+			DIRECTORIES=$((DIRECTORIES+1))
+			custom_find "$i"
+		elif [ -f "$i" ]; then
+			FILES=$((FILES+1))
+			size_category "$i"
+		fi
+	done
+}
+
+size_category()
+{
+	FSIZE=$(wc -c "$1" 2>/dev/null | awk '{print $1}')
+	if [ -z $FSIZE ]; then
+		echo "Error, unable to retrieve data from \"$1\""
+		exit 1
+	fi
+
+	if [ $FSIZE -lt 100 ]; then
+		SIZE_B=$((SIZE_B+1))
+	elif [ $FSIZE -gt 100 ] && [ $FSIZE -lt 1024 ]; then
+		SIZE_K=$((SIZE_K+1))
+	elif [ $FSIZE -gt 1024 ] && [ $FSIZE -lt 10240 ]; then
+		SIZE_XK=$((SIZE_XK+1))
+	elif [ $FSIZE -gt 10240 ] && [ $FSIZE -lt 102400 ]; then
+		SIZE_XXK=$((SIZE_XXK+1))
+	elif [ $FSIZE -gt 102400 ] && [ $FSIZE -lt 1048576 ]; then
+		SIZE_M=$((SIZE_M+1))
+	elif [ $FSIZE -gt 1048576 ] && [ $FSIZE -lt 10485760 ]; then
+		SIZE_XM=$((SIZE_XM+1))
+	elif [ $FSIZE -gt 10485760 ] && [ $FSIZE -lt 104857600 ]; then
+		SIZE_XXM=$((SIZE_XXM+1))
+	elif [ $FSIZE -gt 104857600 ] && [ $FSIZE -lt 1073741824 ]; then
+		SIZE_LG=$((SIZE_LG+1))
+	elif [ $FSIZE -gt 1073741824 ]; then
+		SIZE_G=$((SIZE_G+1))
+	fi
+}
+
+histogram()
+{
+	COUNTER=1
+	while [ $COUNTER -le $1 ]
+	do
+ 		echo -n "#"
+  		COUNTER=$((COUNTER+1))
+	done
+	echo
+}
+
+max() 
+{
+    if [ $1 -gt $2 ]; then
+		HIGHEST="$1"
+	else
+		HIGHEST="$2"
+	fi
+}
+
+usage() { echo "Usage: $0 [-i FILE_ERE] [-n] [DIR]" 1>&2; exit 1; }
+
+while getopts "i:n" o; do
+	case "${o}" in
+		i)
+			I_ARG=${OPTARG}
+			;;
+		n)
+			N_ARG="true"
+			;;
+		\?)
+			echo "Error, incorrect switch used"
+			usage
+			;;
+	esac
+done
+
+shift $(( OPTIND-1 ))
+
+if [ $# -gt 1 ]; then
+	usage
+fi
+
+if [ -n "$1" ]; then
+	DIR="$1"
+fi
+
+if [ ! -d "$DIR" ]; then
+	echo "Error, target directory was not found"
+	exit 1
+fi
+
+if [ -n "$I_ARG" ]; then
+	CHECK=$(echo "$DIR" | egrep "$I_ARG")
+	if [ -z "$CHECK" ]; then
+		:
+	else
+		echo "Error, argument specified as search filter can't cover the root directory"
+		exit 1
+	fi
+fi
+
+custom_find "$DIR"
+
+max "$SIZE_B" "$SIZE_K"
+max "$HIGHEST" "$SIZE_XK"
+max "$HIGHEST" "$SIZE_XXK"
+max "$HIGHEST" "$SIZE_M"
+max "$HIGHEST" "$SIZE_XM"
+max "$HIGHEST" "$SIZE_XXM"
+max "$HIGHEST" "$SIZE_LG"
+max "$HIGHEST" "$SIZE_G"
+
+if [ -t 1 ]; then
+	WIDTH=$(tput cols)
+	WIDTH=$((WIDTH-12))
+else
+	WIDTH=79
+fi
+
+if [ "$N_ARG" = "true" ] && [ $HIGHEST -gt $WIDTH ]; then
+
+	KOEF=$(echo "$WIDTH/$HIGHEST"|bc -l)
+
+	SIZE_B=$(echo "$SIZE_B*$KOEF"|bc -l)
+	SIZE_B=$(echo "$SIZE_B" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_K=$(echo "$SIZE_K*$KOEF"|bc -l)
+	SIZE_K=$(echo "$SIZE_K" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_XK=$(echo "$SIZE_XK*$KOEF"|bc -l)
+	SIZE_XK=$(echo "$SIZE_XK" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_XXK=$(echo "$SIZE_XXK*$KOEF"|bc -l)
+	SIZE_XXK=$(echo "$SIZE_XXK" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_M=$(echo "$SIZE_M*$KOEF"|bc -l)
+	SIZE_M=$(echo "$SIZE_M" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_XM=$(echo "$SIZE_XM*$KOEF"|bc -l)
+	SIZE_XM=$(echo "$SIZE_XM" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_XXM=$(echo "$SIZE_XXM*$KOEF"|bc -l)
+	SIZE_XXM=$(echo "$SIZE_XXM" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_LG=$(echo "$SIZE_LG*$KOEF"|bc -l)
+	SIZE_LG=$(echo "$SIZE_LG" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+	SIZE_G=$(echo "$SIZE_G*$KOEF"|bc -l)
+	SIZE_G=$(echo "$SIZE_G" | awk '{print ($0-int($0)>0)?int($0)+1:int($0)}')
+fi
+
+echo "Root directory: $DIR"
+echo "Directories: $DIRECTORIES"
+echo "All files: $FILES"
+echo "File size histogram:"
+
+printf '  <100 B  : '
+histogram "$SIZE_B"
+printf '  <1 KiB  : '
+histogram "$SIZE_K"
+printf '  <10 KiB : '
+histogram "$SIZE_XK"
+printf '  <100 KiB: '
+histogram "$SIZE_XXK"
+printf '  <1 MiB  : '
+histogram "$SIZE_M"
+printf '  <10 MiB : '
+histogram "$SIZE_XM"
+printf '  <100 MiB: '
+histogram "$SIZE_XXM"	
+printf '  <1 GiB  : '
+histogram "$SIZE_LG"
+printf '  >1 GiB  : '
+histogram "$SIZE_G"

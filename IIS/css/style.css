@@ -1,0 +1,134 @@
+div.dropdown-multicol{
+    width: 30em;
+  }
+  div.dropdown-row>a.dropdown-item{
+    display:inline-block;
+    width: 32%;
+  }
+
+.cards-devices{
+  display:inline-block;
+  max-width: 350px;
+  margin-left: 4%;
+  margin-right: 2%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.responsive-img{
+  width: 100%;
+  height:auto;
+  object-fit: cover;
+}
+
+.detail-img{
+  width: 800px;
+  height: auto;
+  object-fit: cover;
+  margin-left: 20px;
+  float:left;
+  margin:auto;
+}
+
+.detail-desc{
+  margin-left: 810px;
+  margin-top: 80px;
+  padding-top: 0px;
+  
+}
+
+  @media all and (min-width: 750px) and (max-width: 1000px)
+  {
+    .detail-img{
+      width: 700px;
+      height: auto;
+      margin-left: 20px;
+      object-fit: cover;
+      margin-top: 0px;     
+    }
+    
+    .detail-desc{
+      margin-left: 20px;
+      padding-top: 700px;
+    }
+  }
+
+  @media all and (min-width: 400px) and (max-width: 749px)
+  {
+    .detail-img{
+      width: 400px;
+      height: auto;
+      margin:auto;
+      object-fit: cover;
+      margin-top: 0px;
+      margin-left: 20px;
+      display: inline-block;
+      justify-content: center;
+    }
+    
+    .detail-desc{
+      margin-left: 20px;
+      padding-top: 500px;
+    }
+  }
+
+  @media all and (min-width: 320px) and (max-width: 399px)
+  {
+    .detail-img{
+      width: 100%;
+      height: auto;
+      margin:auto;
+      object-fit: cover; 
+      margin-top: 0px;
+      display: inline-block;
+      justify-content: center;
+    }
+    
+    .detail-desc{
+      margin-left: 20px;
+      padding-top: 500px;
+    }
+  }
+
+  @media all and (min-width:769px) and (max-width: 800px) {
+    .cards-devices{
+      margin-left: 2%;
+      margin-right: 2%;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      display:inline-block;
+      max-width: 350px;
+    }
+  }
+  
+  @media all and (min-width:569px) and (max-width: 768px) {
+    .cards-devices{
+      margin: auto;
+      margin-top: 20px;
+      width: 400px;
+      margin-bottom: 20px;
+      display:flex;
+      max-width: 400px;
+    }
+    
+  }
+  
+  @media all and (min-width:481px) and (max-width: 568px) {
+    .cards-devices{
+      margin: auto;
+      margin-top: 20px;
+      width: 400px;
+      margin-bottom: 20px;
+      display:flex;
+    }
+  }
+  
+  @media all and (min-width:321px) and (max-width: 480px) {
+    .cards-devices{
+      margin: auto;
+      margin-top: 20px;
+      width: 320px;
+      margin-bottom: 20px;
+      display:flex;
+    }
+  }

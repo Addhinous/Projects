@@ -1,0 +1,97 @@
+*********************************************************
+                           README
+*********************************************************
+
+Tento skript spracuváva buť relačnú databázu MySQL alebo testovacie CSV súbory 
+s genealogickými dátami. Vytvára z nich rodokmene a tie ukladá aj so všetkými 
+informáciami o osobách do grafovej databázy Neo4j. V prípade testovaných dát 
+sa výsledky vypíšu do súborov.
+
+
+**********************************************************
+                 Požiadavky na spustenie
+**********************************************************
+
+1. Mať spustený databázový server pre databázu MySQL 
+a v ňom je potrebné vytvoriť novú databázu z priloženej v priečinku /databaza
+
+2. Nainštalovaná grafový databázový systém Neo4j 
+      a v ňom je potrebné pomocou aplikáce Neo4j Desktop založiť graf
+
+3. Mať nainštalované python knižnice využívané v programe:
+	
+	mysql - pip3 install mysql-connector-python
+	neo4j - pip install neo4j
+	pandas - pip3 install pandas
+	numpy - pip install numpy
+	Levenshtein - pip install python-Levenshtein
+	geopy - pip install geopy
+
+
+**********************************************************
+                       Použitie
+**********************************************************
+Pre načítanie dát z relačnej databázy:
+
+        $ python3 main.py -database
+
+- skript načítava dáta z relačnej databázy a vytvára rodokmene v grafovej databáze
+
+
+Pre načítanie dát z CSV súborov a ich následné testovanie:
+
+        $ python3 main.py -test
+
+- skript načítava dáta z CVS súborov a vytvára rodokmene v grafovej databáze okrem 
+toho testuje presnosť nášho odhadu výsedky vypíše do textových súborov:
+
+   Testing_result.txt
+   Testing_result_one_file.txt
+
+**********************************************************
+               Skripty pre výpis výsledkov
+**********************************************************
+Všetky skripty majú dobrovoľný parameter '-j', ktorý spôsobí, že namiesto
+textu bude výstupom skriptov json, zobrazený na stdout. Pri skripte
+get_family_tree.py je zobrazená json štruktúra osoby doplnená o políčka 
+'otec', 'matka' a 'deti', ktorých hodnotou sú osobitné štruktúry týchto osôb.
+V prípade, že daná osoba nemá niektorého z týchto príbuzných, toto políčko vo výslednom
+json výpise nebude.
+
+Vypíše všetky osoby so zadaným menom a priezviskom uložené v grafovej databáze:
+
+		$ python3 get_person.py -name <meno> -surname <priezvisko> [-j]
+
+Vypíše všetky záznamy v ktorých sa daná osoba nachádza v grafovej databáze:
+
+		$ python3 get_all_records.py -id <id_osoby> [-j]
+
+
+Vypíše všetkých príbuzných priradených v grafovej databázi:
+
+		$ python3 get_family_tree.py -id <id_osoby> [-j]
+
+*id_osoby - zistíme zo skriptu get_person.py
+
+**********************************************************
+                   Konfiguračné súbory
+**********************************************************
+
+Tento skript potrebuje pre spustenie prístup do databáze Neo4j a
+konfiguračný súbor s autentizačními údajmi, ktorý musí obsahovať ip adresu 
+serveru, uživateľské meno, heslo a port v nasledujúcom formáte:
+
+server=ip
+username=meno
+password=heslo
+port=port
+
+Tento skript potrebuje pre spustenie prístup do databáze Mysql a
+konfiguračný soubor s autentizačními údajmi, ktorý musí obsahovať ip adresu 
+serveru, uživateľské meno, heslo a port v následujúcom formáte:
+
+host=ip
+user=meno
+password=heslo
+port=port
+name_database=meno_databazy

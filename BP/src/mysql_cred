@@ -1,0 +1,5 @@
+host=localhost
+user=root
+password=Pass123
+port=3306
+name_database=demos

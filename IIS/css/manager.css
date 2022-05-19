@@ -1,0 +1,13 @@
+th,
+td {
+	text-align: center;
+	vertical-align: middle;
+}
+
+#usersFilter {
+	width: 200px;
+}
+
+a button {
+	text-decoration: none;
+}
